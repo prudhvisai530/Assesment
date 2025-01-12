@@ -28,13 +28,10 @@ router.get("/dashboard", async (req, res) => {
 
 router.post("/generateQRCode", async (req, res) => {
   try {
-    // Generate a 10-digit random number
     const randomNumber = Math.floor(Math.random() * 10000000000); // 10-digit number
 
     // Generate QR code
     const qrCodeData = await QRCode.toDataURL(randomNumber.toString());
-
-    // Get current date and expiry date (1 day from now, for example)
     const currentDate = new Date();
     const expiryDate = new Date(currentDate);
     expiryDate.setDate(currentDate.getDate() + 1); // 1 day expiry
@@ -45,7 +42,6 @@ router.post("/generateQRCode", async (req, res) => {
       [expiryDate]
     );
 
-    // Send success response
     res.send({
       status: "ok",
       message: "QR code generated and saved successfully!",
