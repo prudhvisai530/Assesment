@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <h1>Welcome,</h1>
+
+    <!-- Button to generate QR code -->
+    <button id="generateQRBtn">Generate QR Code</button>
+
+    <!-- Container to display the generated QR code -->
+    <div id="qrCodeContainer"></div>
+
+    <div id="voucherList">
+      <h2>Your Vouchers</h2>
+      <ul style="list-style: none; padding: 0">
+        <% vouchers.forEach((voucher) => { %>
+        <li style="margin-bottom: 15px">
+          Code: <%= voucher.code %> | Expiry: <%= voucher.expiry_date %>
+          <button onclick="downloadPDF('<%= voucher.id %>')">
+            Export as PDF
+          </button>
+        </li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <!-- Success message -->
+    <div id="successMessage" style="display: none; color: green"></div>
+
+    <script>
+      document
+        .getElementById("generateQRBtn")
+        .addEventListener("click", async function () {
+          try {
+            // Make a POST request to generate the QR code
+            const response = await fetch("/generateQRCode", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            const data = await response.json();
+
+            if (data.status === "ok") {
+              // Display success message
+              const successMessage = document.getElementById("successMessage");
+              successMessage.innerText = data.message;
+              successMessage.style.display = "block";
+
+              // Clear previous QR code
+              const qrCodeContainer =
+                document.getElementById("qrCodeContainer");
+              qrCodeContainer.innerHTML = ""; // Clear any existing QR code
+
+              // Display the new QR code
+              const img = document.createElement("img");
+              img.src = data.qrCode; // Base64 QR code data
+              qrCodeContainer.appendChild(img);
+            } else {
+              alert("Failed to generate QR code. Please try again.");
+            }
+          } catch (error) {
+            console.error("Error generating QR code:", error);
+            alert("An error occurred. Please try again.");
+          }
+        });
+      function downloadPDF(voucherId) {
+        window.open(`/generatePDF/${voucherId}`, "_blank");
+      }
+    </script>
+  </body>
+</html>
